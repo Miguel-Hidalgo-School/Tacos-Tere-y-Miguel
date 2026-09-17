@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Tacos Tere &amp; Miguel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script>
+  var firebaseConfig = {
+    apiKey: "AIzaSyArbOgbNcS2oDpiC71v7N3IpTtlUHU8iBg",
+    authDomain: "tacos-tere-miguel.firebaseapp.com",
+    projectId: "tacos-tere-miguel",
+    storageBucket: "tacos-tere-miguel.firebasestorage.app",
+    messagingSenderId: "662721860245",
+    appId: "1:662721860245:web:827734692eea06456f819c"
+  };
+  firebase.initializeApp(firebaseConfig);
+</script>
+<style>
+  :root{
+    --bg:#fdf5e9;
+    --surface:#ffffff;
+    --surface-2:#fff9ef;
+    --ink:#1e140c;
+    --ink-muted:#8c7c6a;
+    --line:#efe1c9;
+    --accent1:#ff5a36;
+    --accent2:#ff2f7e;
+    --accent3:#7fb618;
+    --accent3-bg: rgba(127,182,24,.13);
+    --accent2-bg: rgba(255,47,126,.10);
+    --danger:#e0304f;
+    --shadow: 0 6px 20px rgba(30,20,12,.08);
+    --glass: none;
+    --blur: none;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#110d0a;
+      --surface: rgba(255,255,255,.045);
+      --surface-2:#1c1611;
+      --ink:#fbf2e5;
+      --ink-muted:#aa9a87;
+      --line: rgba(255,255,255,.09);
+      --accent1:#ff7a52;
+      --accent2:#ff4f97;
+      --accent3:#c3ff5e;
+      --accent3-bg: rgba(195,255,94,.14);
+      --accent2-bg: rgba(255,79,151,.14);
+      --danger:#ff5c78;
+      --shadow: 0 10px 30px rgba(0,0,0,.5);
+      --blur: blur(16px);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#110d0a;
+    --surface: rgba(255,255,255,.045);
+    --surface-2:#1c1611;
+    --ink:#fbf2e5;
+    --ink-muted:#aa9a87;
+    --line: rgba(255,255,255,.09);
+    --accent1:#ff7a52;
+    --accent2:#ff4f97;
+    --accent3:#c3ff5e;
+    --accent3-bg: rgba(195,255,94,.14);
+    --accent2-bg: rgba(255,79,151,.14);
+    --danger:#ff5c78;
+    --shadow: 0 10px 30px rgba(0,0,0,.5);
+    --blur: blur(16px);
+  }
+
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    font-size:16px;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    padding-bottom:78px;
+    position:relative;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,.brand,.tabbar button span.lbltxt,.sheet h3{font-family:'Sora',system-ui,sans-serif;}
+
+  .glow{
+    position:fixed;border-radius:50%;filter:blur(70px);opacity:.35;z-index:0;pointer-events:none;
+  }
+  .glow.g1{width:280px;height:280px;background:var(--accent1);top:-90px;left:-60px;}
+  .glow.g2{width:260px;height:260px;background:var(--accent2);top:-60px;right:-80px;opacity:.25;}
+
+  header.top{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:12px 16px 6px;position:relative;z-index:1;
+  }
+  .brand{
+    font-weight:800;font-size:1.25rem;line-height:1.05;letter-spacing:-.01em;
+    background:linear-gradient(90deg,var(--accent1),var(--accent2));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .brand small{display:block;font-family:'Inter';font-weight:600;font-size:.66rem;color:var(--ink-muted);letter-spacing:.03em;-webkit-text-fill-color:var(--ink-muted);margin-top:1px;}
+  .head-btns{display:flex;gap:7px;flex:none;}
+  .icon-round{
+    background:var(--surface);backdrop-filter:var(--blur);border:1px solid var(--line);color:var(--ink);
+    width:34px;height:34px;border-radius:50%;font-size:.9rem;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;flex:none;
+  }
+
+  main{padding:0 14px 20px;max-width:520px;margin:0 auto;position:relative;z-index:1;}
+  .view{display:none;}
+  .view.active{display:block;}
+  #view-venta.active{padding-bottom:100px;}
+
+  .today-strip{display:flex;gap:8px;margin-bottom:10px;overflow-x:auto;}
+  .today-pill{
+    background:var(--surface);backdrop-filter:var(--blur);border:1px solid var(--line);border-radius:14px;
+    padding:7px 12px;flex:none;box-shadow:var(--shadow);min-width:110px;
+  }
+  .today-pill .lbl{font-size:.66rem;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em;}
+  .today-pill .val{font-size:1.15rem;font-weight:800;font-family:'Sora';margin-top:2px;}
+  .today-pill.cash .val{color:var(--accent3);}
+  .today-pill.credit .val{color:var(--accent2);}
+
+  .card{
+    background:var(--surface);backdrop-filter:var(--blur);border:1px solid var(--line);border-radius:20px;
+    box-shadow:var(--shadow);
+  }
+
+  .product-list{display:flex;flex-direction:column;max-height:calc(100vh - 270px);overflow-y:auto;-webkit-overflow-scrolling:touch;}
+  .product-row{display:flex;flex-direction:column;gap:8px;padding:11px 14px;}
+  .product-row .row-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;}
+  .product-name{font-weight:700;font-size:1.05rem;line-height:1.2;}
+  .product-price{font-size:.82rem;color:var(--ink-muted);flex:none;white-space:nowrap;}
+  .product-row .row-bottom{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+  .stepper{display:flex;align-items:center;gap:6px;flex:none;}
+  .stepper button{
+    width:30px;height:30px;border-radius:9px;border:1px solid var(--line);
+    background:var(--surface-2);color:var(--ink);font-size:1.1rem;font-weight:700;
+    cursor:pointer;line-height:1;flex:none;
+  }
+  .stepper button.plus{background:linear-gradient(135deg,var(--accent1),var(--accent2));border:none;color:#fff;box-shadow:0 4px 14px var(--accent2-bg);}
+  .stepper input{
+    width:32px;text-align:center;border:none;background:transparent;color:var(--ink);
+    font-weight:800;font-size:1rem;font-family:'Inter';flex:none;
+  }
+  .line-total{text-align:right;font-weight:800;font-size:.95rem;background:linear-gradient(90deg,var(--accent1),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent;flex:none;min-width:20px;}
+
+  .empty-note{color:var(--ink-muted);font-size:.85rem;text-align:center;padding:22px 10px;}
+
+  .checkout-bar{position:fixed;left:0;right:0;bottom:66px;display:flex;justify-content:center;pointer-events:none;transition:transform .25s cubic-bezier(.2,.8,.2,1);z-index:15;}
+  .checkout-bar.hidden{transform:translateY(140%);}
+  .checkout-inner{
+    pointer-events:auto;width:100%;max-width:520px;margin:0 14px;
+    background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#fff;border-radius:18px;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 18px;box-shadow:0 10px 26px var(--accent2-bg);
+    cursor:pointer;border:none;font-family:inherit;
+  }
+  .checkout-inner .lbl{font-size:.68rem;opacity:.85;font-weight:700;text-transform:uppercase;letter-spacing:.04em;}
+  .checkout-inner .amt{font-family:'Sora';font-size:1.35rem;font-weight:800;}
+  .checkout-inner .go{font-weight:700;font-size:.9rem;}
+
+  .tabbar{
+    position:fixed;left:0;right:0;bottom:0;background:var(--surface);backdrop-filter:var(--blur);
+    border-top:1px solid var(--line);display:flex;padding:8px 10px calc(8px + env(safe-area-inset-bottom));z-index:20;
+  }
+  .tab-btn{
+    flex:1;background:none;border:none;display:flex;flex-direction:column;
+    align-items:center;gap:3px;padding:7px 2px;color:var(--ink-muted);
+    font-size:.67rem;font-weight:700;cursor:pointer;border-radius:14px;transition:all .15s ease;
+  }
+  .tab-btn .ic{font-size:1.25rem;}
+  .tab-btn.active{color:#fff;background:linear-gradient(135deg,var(--accent1),var(--accent2));box-shadow:0 6px 16px var(--accent2-bg);}
+
+  .section-head{display:flex;align-items:center;justify-content:space-between;margin:20px 2px 10px;}
+  .section-head h2{margin:0;font-size:1.05rem;font-weight:800;}
+  .link-btn{background:none;border:none;color:var(--accent2);font-weight:700;font-size:.85rem;cursor:pointer;font-family:'Inter';padding:4px 2px;}
+
+  label{display:block;font-size:.76rem;font-weight:700;color:var(--ink-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.02em;}
+  input[type=text],input[type=number],input[type=tel],input[type=password]{
+    width:100%;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);
+    border-radius:12px;padding:12px 13px;font-size:.95rem;font-family:'Inter';font-weight:600;
+  }
+  input:focus{outline:2px solid var(--accent1);outline-offset:1px;}
+  .field{margin-bottom:13px;}
+  .btn{display:block;width:100%;text-align:center;border:none;border-radius:14px;padding:14px 16px;font-weight:800;font-size:.95rem;cursor:pointer;font-family:'Inter';}
+  .btn-primary{background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#fff;box-shadow:0 8px 20px var(--accent2-bg);}
+  .btn-lime{background:var(--accent3);color:#182600;}
+  .btn-outline{background:none;border:1px solid var(--line);color:var(--ink);}
+  .btn-row{display:flex;gap:10px;}
+  .btn-row .btn{flex:1;}
+
+  .menu-row{display:flex;gap:8px;align-items:center;padding:12px 14px;}
+  .menu-row input[type=text]{flex:1.4;}
+  .menu-row input[type=number]{flex:.8;}
+  .icon-btn{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--surface-2);color:var(--danger);font-size:1rem;flex:none;cursor:pointer;}
+  .divider{height:1px;background:var(--line);margin:0 14px;}
+
+  .search-wrap{margin-bottom:14px;}
+  .client-row{display:flex;align-items:center;justify-content:space-between;padding:14px 15px;cursor:pointer;}
+  .client-row .name{font-weight:700;}
+  .client-row .phone{font-size:.78rem;color:var(--ink-muted);}
+  .client-row .bal{font-weight:800;font-family:'Sora';}
+  .bal.owes{color:var(--accent2);}
+  .bal.clear{color:var(--accent3);}
+
+  .hist-item{padding:11px 13px;border-radius:14px;background:var(--surface-2);margin-bottom:8px;}
+  .hist-item .row1{display:flex;justify-content:space-between;font-weight:700;font-size:.88rem;}
+  .hist-item .row2{font-size:.75rem;color:var(--ink-muted);margin-top:2px;}
+  .tag{display:inline-block;font-size:.63rem;font-weight:800;text-transform:uppercase;letter-spacing:.02em;padding:3px 8px;border-radius:7px;margin-right:6px;}
+  .tag.compra{background:var(--accent2-bg);color:var(--accent2);}
+  .tag.abono{background:var(--accent3-bg);color:var(--accent3);}
+  .tag.pagado{background:rgba(255,190,60,.18);color:#c98a12;}
+
+  .sheet-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:40;display:none;align-items:flex-end;justify-content:center;}
+  .sheet-backdrop.show{display:flex;}
+  .sheet{background:var(--bg);width:100%;max-width:520px;border-radius:24px 24px 0 0;padding:20px 18px calc(18px + env(safe-area-inset-bottom));max-height:88vh;overflow-y:auto;border-top:1px solid var(--line);}
+  .sheet-handle{width:38px;height:4px;background:var(--line);border-radius:3px;margin:0 auto 14px;}
+  .sheet h3{margin:0 0 4px;font-size:1.15rem;}
+  .sheet .sub{color:var(--ink-muted);font-size:.82rem;margin-bottom:14px;}
+
+  .pay-choice{display:flex;gap:10px;margin-bottom:16px;}
+  .pay-choice button{flex:1;padding:16px 8px;border-radius:16px;border:1px solid var(--line);background:var(--surface-2);cursor:pointer;font-family:'Sora';font-weight:700;font-size:.92rem;color:var(--ink);display:flex;flex-direction:column;align-items:center;gap:6px;transition:all .15s ease;}
+  .pay-choice button .ic{font-size:1.5rem;}
+  .pay-choice button.sel{background:linear-gradient(135deg,var(--accent1),var(--accent2));color:#fff;border-color:transparent;box-shadow:0 8px 20px var(--accent2-bg);}
+
+  .bill-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+  .bill-row button{border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:11px;padding:9px 13px;font-weight:700;font-size:.85rem;cursor:pointer;}
+  .change-box{background:var(--surface-2);border-radius:14px;padding:13px 15px;margin:12px 0;display:flex;justify-content:space-between;align-items:center;}
+  .change-box .lbl2{font-size:.8rem;color:var(--ink-muted);font-weight:600;}
+  .change-box .val{font-family:'Sora';font-size:1.3rem;font-weight:800;}
+  .change-box .val.neg{color:var(--danger);}
+  .change-box .val.pos{color:var(--accent3);}
+
+  .cart-mini{max-height:120px;overflow-y:auto;margin-bottom:12px;}
+  .cart-mini .ln{display:flex;justify-content:space-between;font-size:.85rem;padding:3px 0;color:var(--ink-muted);}
+  .cart-mini .ln b{color:var(--ink);}
+
+  .client-pick{max-height:180px;overflow-y:auto;margin-bottom:10px;border:1px solid var(--line);border-radius:14px;}
+  .client-pick .cp-row{padding:11px 13px;border-bottom:1px solid var(--line);cursor:pointer;font-size:.9rem;}
+  .client-pick .cp-row:last-child{border-bottom:none;}
+  .client-pick .cp-row .n{font-weight:700;}
+  .client-pick .cp-row .p{font-size:.75rem;color:var(--ink-muted);}
+
+  .toast{position:fixed;top:14px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:11px 20px;border-radius:22px;font-weight:700;font-size:.85rem;z-index:60;opacity:0;pointer-events:none;transition:opacity .25s ease, top .25s ease;box-shadow:0 8px 24px rgba(0,0,0,.25);}
+  .toast.show{opacity:1;top:20px;}
+
+  .footer-credit{text-align:center;color:var(--ink-muted);font-size:.7rem;font-weight:600;letter-spacing:.03em;margin:26px 0 6px;opacity:.6;}
+
+  /* ---- auth / pin gates ---- */
+  .gate{position:fixed;inset:0;background:var(--bg);z-index:100;display:flex;align-items:center;justify-content:center;padding:24px;}
+  .gate.hidden{display:none;}
+  .gate-card{width:100%;max-width:360px;text-align:center;}
+  .gate-logo{font-family:'Sora';font-weight:800;font-size:2rem;background:linear-gradient(90deg,var(--accent1),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:4px;}
+  .gate-sub{color:var(--ink-muted);font-size:.85rem;margin-bottom:26px;}
+  .gate-card .field{text-align:left;}
+  .gate-error{color:var(--danger);font-size:.82rem;font-weight:600;margin:-4px 0 12px;min-height:1em;}
+  .gate-credit{margin-top:22px;color:var(--ink-muted);font-size:.68rem;letter-spacing:.05em;text-transform:uppercase;font-weight:700;opacity:.55;}
+  .pin-dots{display:flex;gap:14px;justify-content:center;margin:22px 0 26px;}
+  .pin-dots .d{width:16px;height:16px;border-radius:50%;border:2px solid var(--line);background:transparent;transition:all .15s ease;}
+  .pin-dots .d.filled{background:linear-gradient(135deg,var(--accent1),var(--accent2));border-color:transparent;}
+  .pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:280px;margin:0 auto;}
+  .pin-pad button{aspect-ratio:1;border-radius:16px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font-family:'Sora';font-size:1.3rem;font-weight:700;cursor:pointer;}
+  .pin-pad button.wide{grid-column:span 1;font-size:1rem;background:none;border:none;color:var(--ink-muted);}
+</style>
+</head>
+<body>
+
+<div class="glow g1"></div>
+<div class="glow g2"></div>
+
+<!-- AUTH GATE -->
+<div class="gate" id="authGate">
+  <div class="gate-card">
+    <div class="gate-logo">Tacos Tere &amp; Miguel</div>
+    <div class="gate-sub" id="authSub">Ventas y créditos</div>
+
+    <div id="authConnecting">
+      <div class="gate-sub" style="margin-bottom:6px;">Conectando…</div>
+    </div>
+
+    <div id="authDbError" style="display:none;">
+      <div class="gate-error" style="margin-bottom:16px;">No se pudo conectar a la base de datos. Revisa tu conexión a internet.</div>
+      <button class="btn btn-outline" id="retryDbBtn">Reintentar</button>
+    </div>
+
+    <div id="authSetupForm" style="display:none;">
+      <div class="field">
+        <label>Crea una contraseña</label>
+        <input type="password" id="setupPass1" placeholder="Nueva contraseña">
+      </div>
+      <div class="field">
+        <label>Repítela</label>
+        <input type="password" id="setupPass2" placeholder="Confirmar contraseña">
+      </div>
+      <div class="gate-error" id="setupErr"></div>
+      <button class="btn btn-primary" id="setupPassBtn">Crear y entrar</button>
+    </div>
+
+    <div id="authLoginForm" style="display:none;">
+      <div class="field">
+        <input type="password" id="loginPass" placeholder="Contraseña" autofocus>
+      </div>
+      <div class="gate-error" id="loginErr"></div>
+      <button class="btn btn-primary" id="loginBtn">Entrar</button>
+    </div>
+
+    <div class="gate-credit">Chavarría Producciones</div>
+  </div>
+</div>
+
+<!-- PIN GATE (menu) -->
+<div class="gate hidden" id="pinGate">
+  <div class="gate-card">
+    <div class="gate-logo" style="font-size:1.5rem;" id="pinTitle">PIN de precios</div>
+    <div class="gate-sub" id="pinSub">Ingresa el PIN para editar el menú</div>
+    <div class="pin-dots" id="pinDots">
+      <div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div>
+    </div>
+    <div class="gate-error" id="pinErr"></div>
+    <div class="pin-pad" id="pinPad">
+      <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button>
+      <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button>
+      <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button>
+      <button class="wide" data-k="cancel">Cancelar</button><button data-k="0">0</button><button class="wide" data-k="back">⌫</button>
+    </div>
+  </div>
+</div>
+
+<div id="appRoot" style="display:none;">
+
+<header class="top">
+  <div class="brand">Tacos Tere <span style="-webkit-text-fill-color:var(--accent3);">&amp;</span> Miguel
+    <small>Ventas y créditos</small>
+  </div>
+  <div class="head-btns">
+    <button class="icon-round" id="logoutBtn" aria-label="Cerrar sesión">🔒</button>
+    <button class="icon-round" id="themeBtn" aria-label="Cambiar tema">🌗</button>
+  </div>
+</header>
+
+<main>
+
+  <section class="view active" id="view-venta">
+    <div class="today-strip">
+      <div class="today-pill cash">
+        <div class="lbl">Efectivo hoy</div>
+        <div class="val" id="todayCash">$0</div>
+      </div>
+      <div class="today-pill credit">
+        <div class="lbl">Crédito hoy</div>
+        <div class="val" id="todayCredit">$0</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="product-list" id="productList"></div>
+    </div>
+  </section>
+
+  <section class="view" id="view-credito">
+    <div id="creditoList">
+      <div class="search-wrap">
+        <input type="text" id="clientSearch" placeholder="Buscar por nombre o celular">
+      </div>
+      <div class="card" id="clientListCard"></div>
+    </div>
+
+    <div id="clientDetail" style="display:none;">
+      <button class="link-btn" id="backToClients" style="margin-bottom:8px;">← Clientes</button>
+      <div class="card" style="padding:16px;">
+        <h2 id="cdName" style="margin:0 0 2px;"></h2>
+        <div id="cdPhone" style="color:var(--ink-muted);font-size:.82rem;margin-bottom:10px;"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="color:var(--ink-muted);font-size:.85rem;">Debe actualmente</span>
+          <span id="cdBalance" style="font-family:'Sora';font-size:1.5rem;font-weight:800;"></span>
+        </div>
+      </div>
+
+      <div class="card" style="padding:16px;margin-top:12px;" id="cdActions">
+        <div class="field">
+          <label>Registrar abono</label>
+          <div class="btn-row">
+            <input type="number" id="abonoAmount" placeholder="$ cantidad" min="0" step="any">
+            <button class="btn btn-primary" id="abonoBtn" style="width:auto;flex:none;padding:12px 16px;">Abonar</button>
+          </div>
+        </div>
+        <button class="btn btn-lime" id="pagadoBtn">Marcar como pagado</button>
+      </div>
+
+      <div class="section-head"><h2>Historial</h2></div>
+      <div id="cdHistory"></div>
+    </div>
+  </section>
+
+  <section class="view" id="view-menu">
+    <div class="section-head"><h2>Productos y precios</h2></div>
+    <div class="card" id="menuList"></div>
+
+    <div class="section-head"><h2>Agregar producto</h2></div>
+    <div class="card" style="padding:16px;">
+      <div class="field">
+        <label>Nombre</label>
+        <input type="text" id="newProdName" placeholder="ej. Taco de suadero">
+      </div>
+      <div class="field">
+        <label>Precio</label>
+        <input type="number" id="newProdPrice" placeholder="$" min="0" step="any">
+      </div>
+      <button class="btn btn-primary" id="addProdBtn">Agregar producto</button>
+    </div>
+
+    <div class="footer-credit">Chavarría Producciones</div>
+  </section>
+
+</main>
+
+<div class="checkout-bar hidden" id="checkoutBar">
+  <button class="checkout-inner" id="checkoutBtn">
+    <span class="lbl">Total<br><span class="amt" id="checkoutAmt">$0</span></span>
+    <span class="go">Cobrar →</span>
+  </button>
+</div>
+
+<nav class="tabbar">
+  <button class="tab-btn active" data-view="venta"><span class="ic">🌮</span><span class="lbltxt">Venta</span></button>
+  <button class="tab-btn" data-view="credito"><span class="ic">📒</span><span class="lbltxt">Créditos</span></button>
+  <button class="tab-btn" data-view="menu"><span class="ic">⚙️</span><span class="lbltxt">Menú</span></button>
+</nav>
+
+<div class="sheet-backdrop" id="paySheetBackdrop">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h3>Cobrar venta</h3>
+    <div class="sub" id="payTotalLine"></div>
+
+    <div class="cart-mini" id="cartMini"></div>
+
+    <div class="pay-choice">
+      <button id="payCashChoice"><span class="ic">💵</span>Efectivo</button>
+      <button id="payCreditChoice"><span class="ic">📒</span>Crédito</button>
+    </div>
+
+    <div id="cashPanel" style="display:none;">
+      <label>Billetes recibidos</label>
+      <div class="bill-row">
+        <button data-bill="500">+$500</button>
+        <button data-bill="200">+$200</button>
+        <button data-bill="100">+$100</button>
+        <button data-bill="50">+$50</button>
+        <button data-bill="20">+$20</button>
+        <button id="clearRecibido" style="background:none;border:none;color:var(--danger);">Borrar</button>
+      </div>
+      <div class="field">
+        <label>Recibido</label>
+        <input type="number" id="recibidoInput" placeholder="$0" min="0" step="any">
+      </div>
+      <div class="change-box">
+        <span class="lbl2" id="changeLbl">Cambio</span>
+        <span class="val" id="changeVal">$0</span>
+      </div>
+      <button class="btn btn-primary" id="confirmCashBtn">Confirmar venta</button>
+    </div>
+
+    <div id="creditPanel" style="display:none;">
+      <div class="field">
+        <input type="text" id="creditClientSearch" placeholder="Buscar cliente por nombre o celular">
+      </div>
+      <div class="client-pick" id="creditClientPick"></div>
+
+      <div id="newClientForm" style="display:none;">
+        <div class="field">
+          <label>Nombre del cliente</label>
+          <input type="text" id="ncName" placeholder="Nombre">
+        </div>
+        <div class="field">
+          <label>Celular</label>
+          <input type="tel" id="ncPhone" placeholder="10 dígitos">
+        </div>
+      </div>
+      <button class="btn btn-outline" id="toggleNewClient" style="margin-bottom:10px;">+ Cliente nuevo</button>
+
+      <div id="selectedClientBox" style="display:none;margin-bottom:12px;padding:11px 13px;background:var(--surface-2);border-radius:12px;">
+        <b id="selClientName"></b> · <span id="selClientPhone" style="color:var(--ink-muted);"></span>
+      </div>
+
+      <button class="btn btn-lime" id="confirmCreditBtn">Registrar a crédito</button>
+    </div>
+
+    <button class="link-btn" id="closeSheet" style="width:100%;margin-top:12px;">Cancelar</button>
+  </div>
+</div>
+
+</div><!-- /appRoot -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  function load(key, fallback){
+    try{ const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }catch(e){ return fallback; }
+  }
+  function save(key, val){ try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){} }
+  function todayStr(){ const d = new Date(); return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); }
+  function fmt(n){
+    n = Math.round((n + Number.EPSILON) * 100) / 100;
+    if(Number.isInteger(n)) return '$' + n.toLocaleString('es-MX');
+    return '$' + n.toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2});
+  }
+  function fmtDate(iso){
+    const d = new Date(iso);
+    return d.toLocaleDateString('es-MX', {day:'numeric', month:'short'}) + ' ' + d.toLocaleTimeString('es-MX', {hour:'2-digit', minute:'2-digit'});
+  }
+  function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+  function encode(s){ try{ return btoa(unescape(encodeURIComponent(s))); }catch(e){ return s; } }
+
+  // ---------- data (shared via cloud db) ----------
+  const DEFAULT_PRODUCTS = [
+    {name:'Orden Dogos (3)', price:80},
+    {name:'Dogo c/u', price:35},
+    {name:'Taco de Adobada', price:12},
+    {name:'Taco a la Diabla', price:15},
+    {name:'Taco de Asada', price:13}
+  ];
+  let products = [];
+  let clients = [];
+  let today = {date: todayStr(), cash:0, credit:0};
+  let cart = {};
+  let cloudDb = null;
+  let seedAttempted = false;
+
+  // ---------- theme ----------
+  const themeBtn = document.getElementById('themeBtn');
+  (function applyTheme(){ const t = load('tt_theme', null); if(t) document.documentElement.setAttribute('data-theme', t); })();
+  themeBtn.addEventListener('click', function(){
+    const cur = document.documentElement.getAttribute('data-theme');
+    const next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    save('tt_theme', next);
+  });
+
+  // ---------- toast ----------
+  let toastTimer;
+  function toast(msg){
+    const el = document.getElementById('toast');
+    el.textContent = msg; el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>el.classList.remove('show'), 1800);
+  }
+
+  // ================= AUTH GATE =================
+  const authGate = document.getElementById('authGate');
+  const appRoot = document.getElementById('appRoot');
+  const authConnecting = document.getElementById('authConnecting');
+  const authDbError = document.getElementById('authDbError');
+  const authSetupForm = document.getElementById('authSetupForm');
+  const authLoginForm = document.getElementById('authLoginForm');
+
+  function showOnly(el){
+    [authConnecting, authDbError, authSetupForm, authLoginForm].forEach(x=> x.style.display = (x===el?'block':'none'));
+  }
+
+  function subscribeAll(){
+    cloudDb.collection('products').onSnapshot(function(snap){
+      products = snap.docs.map(d=>Object.assign({id:d.id}, d.data()));
+      if(!seedAttempted && snap.empty){
+        seedAttempted = true;
+        DEFAULT_PRODUCTS.forEach(p=>{ cloudDb.collection('products').add(p).catch(function(){}); });
+      }
+      renderProductList();
+      if(document.getElementById('view-menu').classList.contains('active')) renderMenuList();
+      updateCheckoutBar();
+    }, function(){ /* live updates unavailable; local view still works */ });
+
+    cloudDb.collection('clients').onSnapshot(function(snap){
+      clients = snap.docs.map(d=>Object.assign({id:d.id}, d.data()));
+      if(document.getElementById('view-credito').classList.contains('active')){
+        if(document.getElementById('clientDetail').style.display !== 'none'){
+          const openId = document.getElementById('cdActions').dataset.id;
+          const c = clients.find(x=>x.id===openId);
+          if(c) showClientDetail(c);
+        } else {
+          renderClientList();
+        }
+      }
+    }, function(){});
+
+    cloudDb.doc('state/today').onSnapshot(function(snap){
+      const d = snap.exists ? snap.data() : {date: todayStr(), cash:0, credit:0};
+      if(d.date !== todayStr()){
+        today = {date: todayStr(), cash:0, credit:0};
+        cloudDb.doc('state/today').set(today).catch(function(){});
+      } else {
+        today = d;
+      }
+      updateCheckoutBar();
+    }, function(){});
+  }
+
+  function startApp(){
+    authGate.classList.add('hidden');
+    appRoot.style.display = 'block';
+    subscribeAll();
+    renderProductList();
+    updateCheckoutBar();
+  }
+
+  async function initAuth(){
+    showOnly(authConnecting);
+    let db;
+    try{ db = firebase.firestore(); }catch(e){ db = null; }
+    if(!db){ showOnly(authDbError); return; }
+    cloudDb = db;
+    let snap;
+    try{ snap = await cloudDb.doc('config/app').get(); }catch(e){ showOnly(authDbError); return; }
+    if(!snap.exists){
+      showOnly(authSetupForm);
+    } else if(sessionStorage.getItem('tt_authed') === '1'){
+      startApp();
+    } else {
+      showOnly(authLoginForm);
+      setTimeout(()=>document.getElementById('loginPass').focus(), 200);
+    }
+  }
+  document.getElementById('retryDbBtn').addEventListener('click', initAuth);
+
+  document.getElementById('setupPassBtn').addEventListener('click', async function(){
+    const p1 = document.getElementById('setupPass1').value;
+    const p2 = document.getElementById('setupPass2').value;
+    const err = document.getElementById('setupErr');
+    if(!p1 || p1.length < 4){ err.textContent = 'Usa al menos 4 caracteres.'; return; }
+    if(p1 !== p2){ err.textContent = 'Las contraseñas no coinciden.'; return; }
+    err.textContent = '';
+    try{ await cloudDb.doc('config/app').set({password: encode(p1)}); }
+    catch(e){ err.textContent = 'No se pudo guardar. Intenta de nuevo.'; return; }
+    sessionStorage.setItem('tt_authed', '1');
+    startApp();
+  });
+
+  document.getElementById('loginBtn').addEventListener('click', attemptLogin);
+  document.getElementById('loginPass').addEventListener('keydown', function(e){ if(e.key === 'Enter') attemptLogin(); });
+  async function attemptLogin(){
+    const input = document.getElementById('loginPass');
+    const err = document.getElementById('loginErr');
+    let stored;
+    try{
+      const snap = await cloudDb.doc('config/app').get();
+      stored = snap.exists ? snap.data().password : null;
+    }catch(e){ err.textContent = 'No se pudo verificar. Intenta de nuevo.'; return; }
+    if(encode(input.value) === stored){
+      err.textContent = '';
+      sessionStorage.setItem('tt_authed', '1');
+      input.value = '';
+      startApp();
+    } else {
+      err.textContent = 'Contraseña incorrecta.';
+    }
+  }
+
+  document.getElementById('logoutBtn').addEventListener('click', function(){
+    sessionStorage.removeItem('tt_authed');
+    appRoot.style.display = 'none';
+    document.getElementById('loginPass').value = '';
+    document.getElementById('loginErr').textContent = '';
+    showOnly(authLoginForm);
+    authGate.classList.remove('hidden');
+    setTimeout(()=>document.getElementById('loginPass').focus(), 200);
+  });
+
+  // ================= PIN GATE (menu) =================
+  const pinGate = document.getElementById('pinGate');
+  const pinDotsEl = document.getElementById('pinDots');
+  let pinBuffer = '';
+  let pinMode = 'enter'; // 'enter' | 'setup1' | 'setup2'
+  let pinFirstEntry = '';
+  let pinOnSuccess = null;
+
+  function renderPinDots(){
+    const dots = pinDotsEl.querySelectorAll('.d');
+    dots.forEach((d,i)=> d.classList.toggle('filled', i < pinBuffer.length));
+  }
+  function openPinGate(onSuccess){
+    pinOnSuccess = onSuccess;
+    pinBuffer = '';
+    document.getElementById('pinErr').textContent = '';
+    const storedPin = load('tt_pin', null);
+    if(!storedPin){
+      pinMode = 'setup1';
+      document.getElementById('pinTitle').textContent = 'Crea un PIN';
+      document.getElementById('pinSub').textContent = 'Este PIN protegerá los precios del menú';
+    } else {
+      pinMode = 'enter';
+      document.getElementById('pinTitle').textContent = 'PIN de precios';
+      document.getElementById('pinSub').textContent = 'Ingresa el PIN para editar el menú';
+    }
+    renderPinDots();
+    pinGate.classList.remove('hidden');
+  }
+  function closePinGate(){ pinGate.classList.add('hidden'); pinOnSuccess = null; }
+
+  document.getElementById('pinPad').addEventListener('click', function(e){
+    const btn = e.target.closest('button');
+    if(!btn) return;
+    const k = btn.dataset.k;
+    const err = document.getElementById('pinErr');
+    if(k === 'cancel'){ closePinGate(); return; }
+    if(k === 'back'){ pinBuffer = pinBuffer.slice(0,-1); renderPinDots(); return; }
+    if(pinBuffer.length >= 4) return;
+    pinBuffer += k;
+    renderPinDots();
+    if(pinBuffer.length === 4){
+      if(pinMode === 'setup1'){
+        pinFirstEntry = pinBuffer;
+        pinBuffer = '';
+        pinMode = 'setup2';
+        document.getElementById('pinSub').textContent = 'Repite el PIN para confirmar';
+        setTimeout(renderPinDots, 120);
+      } else if(pinMode === 'setup2'){
+        if(pinBuffer === pinFirstEntry){
+          save('tt_pin', pinFirstEntry);
+          err.textContent = '';
+          const cb = pinOnSuccess;
+          closePinGate();
+          if(cb) cb();
+        } else {
+          err.textContent = 'No coincide. Intenta de nuevo.';
+          pinMode = 'setup1';
+          pinBuffer = ''; pinFirstEntry = '';
+          document.getElementById('pinSub').textContent = 'Este PIN protegerá los precios del menú';
+          setTimeout(renderPinDots, 120);
+        }
+      } else {
+        const storedPin = load('tt_pin', null);
+        if(pinBuffer === storedPin){
+          err.textContent = '';
+          const cb = pinOnSuccess;
+          closePinGate();
+          if(cb) cb();
+        } else {
+          err.textContent = 'PIN incorrecto.';
+          pinBuffer = '';
+          setTimeout(renderPinDots, 120);
+        }
+      }
+    }
+  });
+
+  // ---------- tabs ----------
+  const views = {venta:'view-venta', credito:'view-credito', menu:'view-menu'};
+  document.querySelectorAll('.tab-btn').forEach(btn=>{
+    btn.addEventListener('click', function(){
+      if(btn.dataset.view === 'menu' && !btn.classList.contains('active')){
+        openPinGate(function(){ activateTab(btn); });
+        return;
+      }
+      activateTab(btn);
+    });
+  });
+  function activateTab(btn){
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    Object.values(views).forEach(id=>document.getElementById(id).classList.remove('active'));
+    document.getElementById(views[btn.dataset.view]).classList.add('active');
+    updateCheckoutBar();
+    if(btn.dataset.view === 'credito'){ showClientList(); renderClientList(); }
+    if(btn.dataset.view === 'menu'){ renderMenuList(); }
+  }
+
+  // ---------- VENTA ----------
+  function cartTotal(){ let t=0; for(const p of products){ t += (cart[p.id]||0) * p.price; } return t; }
+  function renderProductList(){
+    const wrap = document.getElementById('productList');
+    if(products.length === 0){ wrap.innerHTML = '<div class="empty-note">Todavía no hay productos. Agrégalos en la pestaña Menú.</div>'; return; }
+    wrap.innerHTML = products.map(p=>{
+      const qty = cart[p.id] || 0;
+      return `<div class="product-row" data-id="${p.id}">
+        <div class="row-top">
+          <div class="product-name">${escapeHtml(p.name)}</div>
+          <div class="product-price">${fmt(p.price)} c/u</div>
+        </div>
+        <div class="row-bottom">
+          <div class="stepper">
+            <button class="minus" aria-label="menos">–</button>
+            <input type="number" class="qtyInput" value="${qty}" min="0" inputmode="numeric">
+            <button class="plus" aria-label="más">+</button>
+          </div>
+          <div class="line-total">${qty>0 ? fmt(qty*p.price) : ''}</div>
+        </div>
+      </div>`;
+    }).join('<div class="divider"></div>');
+    wrap.querySelectorAll('.product-row').forEach(row=>{
+      const id = row.dataset.id;
+      row.querySelector('.minus').addEventListener('click', ()=>{ cart[id] = Math.max(0, (cart[id]||0) - 1); renderProductList(); updateCheckoutBar(); });
+      row.querySelector('.plus').addEventListener('click', ()=>{ cart[id] = (cart[id]||0) + 1; renderProductList(); updateCheckoutBar(); });
+      row.querySelector('.qtyInput').addEventListener('change', (e)=>{
+        let v = parseInt(e.target.value); if(isNaN(v) || v < 0) v = 0;
+        cart[id] = v; renderProductList(); updateCheckoutBar();
+      });
+    });
+  }
+  function updateCheckoutBar(){
+    const bar = document.getElementById('checkoutBar');
+    const total = cartTotal();
+    const onVenta = document.getElementById('view-venta').classList.contains('active');
+    if(total > 0 && onVenta){ bar.classList.remove('hidden'); document.getElementById('checkoutAmt').textContent = fmt(total); }
+    else { bar.classList.add('hidden'); }
+    document.getElementById('todayCash').textContent = fmt(today.cash);
+    document.getElementById('todayCredit').textContent = fmt(today.credit);
+  }
+  function cartLines(){
+    return products.filter(p=>(cart[p.id]||0) > 0).map(p=>({ name:p.name, price:p.price, qty:cart[p.id], total: cart[p.id]*p.price }));
+  }
+  function resetCart(){ cart = {}; renderProductList(); updateCheckoutBar(); }
+
+  // ---------- payment sheet ----------
+  const paySheetBackdrop = document.getElementById('paySheetBackdrop');
+  const cashPanel = document.getElementById('cashPanel');
+  const creditPanel = document.getElementById('creditPanel');
+  let recibido = 0;
+  let selectedClient = null;
+
+  document.getElementById('checkoutBtn').addEventListener('click', openPaySheet);
+  document.getElementById('closeSheet').addEventListener('click', closePaySheet);
+  paySheetBackdrop.addEventListener('click', function(e){ if(e.target === paySheetBackdrop) closePaySheet(); });
+
+  function openPaySheet(){
+    const total = cartTotal();
+    document.getElementById('payTotalLine').textContent = 'Total a cobrar: ' + fmt(total);
+    document.getElementById('cartMini').innerHTML = cartLines().map(l=>`<div class="ln"><span>${l.qty} × ${escapeHtml(l.name)}</span><b>${fmt(l.total)}</b></div>`).join('');
+    cashPanel.style.display = 'none'; creditPanel.style.display = 'none';
+    document.getElementById('payCashChoice').classList.remove('sel');
+    document.getElementById('payCreditChoice').classList.remove('sel');
+    recibido = 0; document.getElementById('recibidoInput').value = '';
+    selectedClient = null;
+    document.getElementById('selectedClientBox').style.display = 'none';
+    document.getElementById('newClientForm').style.display = 'none';
+    document.getElementById('creditClientSearch').value = '';
+    renderCreditClientPick('');
+    updateChangeBox();
+    paySheetBackdrop.classList.add('show');
+  }
+  function closePaySheet(){ paySheetBackdrop.classList.remove('show'); }
+
+  document.getElementById('payCashChoice').addEventListener('click', function(){
+    this.classList.add('sel'); document.getElementById('payCreditChoice').classList.remove('sel');
+    cashPanel.style.display = 'block'; creditPanel.style.display = 'none';
+  });
+  document.getElementById('payCreditChoice').addEventListener('click', function(){
+    this.classList.add('sel'); document.getElementById('payCashChoice').classList.remove('sel');
+    creditPanel.style.display = 'block'; cashPanel.style.display = 'none';
+  });
+
+  document.querySelectorAll('.bill-row button[data-bill]').forEach(b=>{
+    b.addEventListener('click', function(){ recibido += parseFloat(this.dataset.bill); document.getElementById('recibidoInput').value = recibido; updateChangeBox(); });
+  });
+  document.getElementById('clearRecibido').addEventListener('click', function(){ recibido = 0; document.getElementById('recibidoInput').value = ''; updateChangeBox(); });
+  document.getElementById('recibidoInput').addEventListener('input', function(){ recibido = parseFloat(this.value) || 0; updateChangeBox(); });
+
+  function updateChangeBox(){
+    const total = cartTotal(); const diff = recibido - total;
+    const lbl = document.getElementById('changeLbl'); const val = document.getElementById('changeVal');
+    if(diff < 0){ lbl.textContent = 'Falta'; val.textContent = fmt(Math.abs(diff)); val.className = 'val neg'; }
+    else { lbl.textContent = 'Cambio'; val.textContent = fmt(diff); val.className = 'val pos'; }
+  }
+
+  document.getElementById('confirmCashBtn').addEventListener('click', function(){
+    const total = cartTotal(); if(total <= 0) return;
+    today.cash += total; save('tt_today', today);
+    closePaySheet(); resetCart();
+    toast('Venta registrada · ' + fmt(total));
+  });
+
+  document.getElementById('creditClientSearch').addEventListener('input', function(){ renderCreditClientPick(this.value.trim()); });
+  function renderCreditClientPick(q){
+    const box = document.getElementById('creditClientPick');
+    const list = clients.filter(c=>{ if(!q) return true; return c.name.toLowerCase().includes(q.toLowerCase()) || c.phone.includes(q); });
+    if(list.length === 0){ box.innerHTML = '<div class="cp-row" style="color:var(--ink-muted);cursor:default;">Sin resultados. Usa "Cliente nuevo".</div>'; return; }
+    box.innerHTML = list.map(c=>`<div class="cp-row" data-id="${c.id}"><div class="n">${escapeHtml(c.name)}</div><div class="p">${escapeHtml(c.phone)} · debe ${fmt(c.balance)}</div></div>`).join('');
+    box.querySelectorAll('.cp-row[data-id]').forEach(row=>{ row.addEventListener('click', function(){ const c = clients.find(x=>x.id===this.dataset.id); pickClient(c); }); });
+  }
+  function pickClient(c){
+    selectedClient = c;
+    document.getElementById('selectedClientBox').style.display = 'block';
+    document.getElementById('selClientName').textContent = c.name;
+    document.getElementById('selClientPhone').textContent = c.phone;
+    document.getElementById('newClientForm').style.display = 'none';
+  }
+  document.getElementById('toggleNewClient').addEventListener('click', function(){
+    const f = document.getElementById('newClientForm');
+    f.style.display = f.style.display === 'none' ? 'block' : 'none';
+    selectedClient = null;
+    document.getElementById('selectedClientBox').style.display = 'none';
+  });
+
+  document.getElementById('confirmCreditBtn').addEventListener('click', function(){
+    const total = cartTotal(); if(total <= 0) return;
+    let client = selectedClient;
+    const nameField = document.getElementById('ncName');
+    const phoneField = document.getElementById('ncPhone');
+    if(!client && nameField.value.trim() && phoneField.value.trim()){
+      const phone = phoneField.value.trim();
+      const existing = clients.find(c=>c.phone === phone);
+      if(existing){ client = existing; }
+      else { client = {id:uid(), name:nameField.value.trim(), phone:phone, balance:0, history:[]}; clients.push(client); }
+    }
+    if(!client){ toast('Elige o agrega un cliente'); return; }
+    client.balance += total;
+    client.history.unshift({type:'compra', date:new Date().toISOString(), amount: total, items: cartLines()});
+    save('tt_clients', clients);
+    today.credit += total; save('tt_today', today);
+    nameField.value = ''; phoneField.value = '';
+    closePaySheet(); resetCart();
+    toast('Venta a crédito registrada · ' + fmt(total));
+  });
+
+  // ---------- CLIENTES ----------
+  function showClientList(){ document.getElementById('creditoList').style.display = 'block'; document.getElementById('clientDetail').style.display = 'none'; }
+  function showClientDetail(c){
+    document.getElementById('creditoList').style.display = 'none';
+    document.getElementById('clientDetail').style.display = 'block';
+    document.getElementById('cdName').textContent = c.name;
+    document.getElementById('cdPhone').textContent = c.phone;
+    const balEl = document.getElementById('cdBalance');
+    balEl.textContent = fmt(c.balance);
+    balEl.style.color = c.balance > 0 ? 'var(--accent2)' : 'var(--accent3)';
+    document.getElementById('cdActions').dataset.id = c.id;
+    const hist = document.getElementById('cdHistory');
+    if(c.history.length === 0){ hist.innerHTML = '<div class="empty-note">Sin movimientos todavía.</div>'; }
+    else {
+      hist.innerHTML = c.history.map(h=>{
+        let tagLabel = h.type === 'compra' ? 'Compra' : (h.type === 'abono' ? 'Abono' : 'Pagado');
+        let detail = (h.type === 'compra' && h.items) ? h.items.map(i=>`${i.qty}×${i.name}`).join(', ') : '';
+        return `<div class="hist-item">
+          <div class="row1"><span><span class="tag ${h.type}">${tagLabel}</span>${fmt(h.amount)}</span><span style="color:var(--ink-muted);font-weight:500;">${fmtDate(h.date)}</span></div>
+          ${detail ? `<div class="row2">${escapeHtml(detail)}</div>` : ''}
+        </div>`;
+      }).join('');
+    }
+  }
+  function renderClientList(){
+    const box = document.getElementById('clientListCard');
+    const q = document.getElementById('clientSearch').value.trim().toLowerCase();
+    const list = clients.filter(c=> !q || c.name.toLowerCase().includes(q) || c.phone.includes(q));
+    if(clients.length === 0){ box.innerHTML = '<div class="empty-note">Aún no hay clientes. Se agregan al registrar una venta a crédito.</div>'; return; }
+    if(list.length === 0){ box.innerHTML = '<div class="empty-note">Sin resultados.</div>'; return; }
+    list.sort((a,b)=> b.balance - a.balance);
+    box.innerHTML = list.map(c=>`<div class="client-row" data-id="${c.id}">
+        <div><div class="name">${escapeHtml(c.name)}</div><div class="phone">${escapeHtml(c.phone)}</div></div>
+        <div class="bal ${c.balance>0?'owes':'clear'}">${fmt(c.balance)}</div>
+      </div>`).join('<div class="divider"></div>');
+    box.querySelectorAll('.client-row').forEach(row=>{ row.addEventListener('click', function(){ const c = clients.find(x=>x.id === this.dataset.id); showClientDetail(c); }); });
+  }
+  document.getElementById('clientSearch').addEventListener('input', renderClientList);
+  document.getElementById('backToClients').addEventListener('click', function(){ showClientList(); renderClientList(); });
+
+  document.getElementById('abonoBtn').addEventListener('click', function(){
+    const id = document.getElementById('cdActions').dataset.id;
+    const c = clients.find(x=>x.id===id);
+    const input = document.getElementById('abonoAmount');
+    let amt = parseFloat(input.value);
+    if(!amt || amt <= 0){ toast('Escribe una cantidad válida'); return; }
+    if(amt > c.balance) amt = c.balance;
+    c.balance -= amt;
+    c.history.unshift({type:'abono', date:new Date().toISOString(), amount:amt});
+    save('tt_clients', clients);
+    input.value = '';
+    showClientDetail(c);
+    toast('Abono registrado · ' + fmt(amt));
+  });
+  document.getElementById('pagadoBtn').addEventListener('click', function(){
+    const id = document.getElementById('cdActions').dataset.id;
+    const c = clients.find(x=>x.id===id);
+    if(c.balance <= 0){ toast('Este cliente no debe nada'); return; }
+    const paid = c.balance;
+    c.history.unshift({type:'pagado', date:new Date().toISOString(), amount:paid});
+    c.balance = 0;
+    save('tt_clients', clients);
+    showClientDetail(c);
+    toast('Marcado como pagado');
+  });
+
+  // ---------- MENU ----------
+  function renderMenuList(){
+    const box = document.getElementById('menuList');
+    if(products.length === 0){ box.innerHTML = '<div class="empty-note">No hay productos todavía.</div>'; return; }
+    box.innerHTML = products.map(p=>`<div class="menu-row" data-id="${p.id}">
+        <input type="text" class="mName" value="${escapeAttr(p.name)}">
+        <input type="number" class="mPrice" value="${p.price}" min="0" step="any">
+        <button class="icon-btn delProd" aria-label="borrar">✕</button>
+      </div>`).join('<div class="divider"></div>');
+    box.querySelectorAll('.menu-row').forEach(row=>{
+      const id = row.dataset.id;
+      row.querySelector('.mName').addEventListener('change', function(){ const p = products.find(x=>x.id===id); p.name = this.value.trim() || p.name; save('tt_products', products); renderProductList(); });
+      row.querySelector('.mPrice').addEventListener('change', function(){ const p = products.find(x=>x.id===id); const v = parseFloat(this.value); p.price = isNaN(v) ? p.price : v; save('tt_products', products); renderProductList(); });
+      row.querySelector('.delProd').addEventListener('click', function(){ products = products.filter(x=>x.id!==id); delete cart[id]; save('tt_products', products); renderMenuList(); renderProductList(); updateCheckoutBar(); });
+    });
+  }
+  document.getElementById('addProdBtn').addEventListener('click', function(){
+    const nameEl = document.getElementById('newProdName'); const priceEl = document.getElementById('newProdPrice');
+    const name = nameEl.value.trim(); const price = parseFloat(priceEl.value);
+    if(!name || isNaN(price) || price < 0){ toast('Escribe nombre y precio válidos'); return; }
+    products.push({id:uid(), name, price});
+    save('tt_products', products);
+    nameEl.value = ''; priceEl.value = '';
+    renderMenuList(); renderProductList();
+    toast('Producto agregado');
+  });
+
+  function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+  function escapeAttr(s){ return escapeHtml(s); }
+
+  initAuth();
+})();
+</script>
+</body>
+</html>
