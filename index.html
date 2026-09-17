@@ -131,7 +131,7 @@
     box-shadow:var(--shadow);
   }
 
-  .product-list{display:flex;flex-direction:column;max-height:calc(100vh - 270px);overflow-y:auto;-webkit-overflow-scrolling:touch;}
+  .product-list{display:flex;flex-direction:column;}
   .product-row{display:flex;flex-direction:column;gap:8px;padding:11px 14px;}
   .product-row .row-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;}
   .product-name{font-weight:700;font-size:1.05rem;line-height:1.2;}
@@ -146,7 +146,7 @@
   .stepper button.plus{background:linear-gradient(135deg,var(--accent1),var(--accent2));border:none;color:#fff;box-shadow:0 4px 14px var(--accent2-bg);}
   .stepper input{
     width:32px;text-align:center;border:none;background:transparent;color:var(--ink);
-    font-weight:800;font-size:1rem;font-family:'Inter';flex:none;
+    font-weight:800;font-size:1rem;font-family:'Inter';flex:none;touch-action:manipulation;
   }
   .line-total{text-align:right;font-weight:800;font-size:.95rem;background:linear-gradient(90deg,var(--accent1),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent;flex:1;min-width:0;overflow:visible;}
 
@@ -788,7 +788,7 @@
         <div class="row-bottom">
           <div class="stepper">
             <button class="minus" aria-label="menos">–</button>
-            <input type="number" class="qtyInput" value="${qty}" min="0" inputmode="numeric">
+            <input type="text" class="qtyInput" value="${qty}" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
             <button class="plus" aria-label="más">+</button>
           </div>
           <div class="line-total">${qty>0 ? fmt(qty*p.price) : ''}</div>
